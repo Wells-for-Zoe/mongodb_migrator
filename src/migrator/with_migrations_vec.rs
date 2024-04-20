@@ -392,7 +392,10 @@ impl WithMigrationsVec {
             })
             .await
             .map_or_else(
-                |_| migration_record.clone().migration_failed(),
+                |e| {
+                    tracing::error!(error = ?e, "Error during up migration");
+                    migration_record.clone().migration_failed()
+                },
                 |_| migration_record.clone().migration_succeeded(),
             )
     }
